@@ -1,11 +1,12 @@
-heat_template_version: 2014-10-16
+heat_template_version: 2015-04-30
 
 parameters:
   servers:
     type: json
+  input_values:
+    type: json    
 
 resources:
-
   ExtraConfig:
     type: OS::Heat::SoftwareConfig
     properties:
@@ -13,12 +14,13 @@ resources:
       inputs:
         - name: OSD_NUMA_INTERFACE
       config: {get_file: numa-systemd-osd.sh}
-      
+
   ExtraDeployments:
-    type: OS::Heat::SoftwareDeployments
+    type: OS::Heat::SoftwareDeploymentGroup
     properties:
-      servers: {get_param: servers}
+      servers: {get_param: [servers, 'Compute']}
       config: {get_resource: ExtraConfig}
       input_values:
+        get_param: input_values
         OSD_NUMA_INTERFACE: 'em2'
       actions: ['CREATE']
